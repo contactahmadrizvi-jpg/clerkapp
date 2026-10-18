@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Output standalone build — smallest possible deployment bundle
-  output: "standalone",
-
   // Compress responses with gzip
   compress: true,
 
