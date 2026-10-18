@@ -1,0 +1,26 @@
+version: 1
+
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - cd frontend
+        - npm ci --legacy-peer-deps
+    build:
+      commands:
+        - npm run build
+    postBuild:
+      commands:
+        # Copy static assets into the standalone bundle so Amplify SSR can serve them
+        - cp -r .next/static .next/standalone/.next/static
+        - cp -r public .next/standalone/public || true
+        - echo "Build complete"
+  artifacts:
+    # Amplify SSR expects the standalone server bundle
+    baseDirectory: frontend/.next/standalone
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - frontend/node_modules/**/*
+      - frontend/.next/cache/**/*

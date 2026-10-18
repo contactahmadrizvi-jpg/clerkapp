@@ -1,0 +1,36 @@
+{
+  "name": "clerk-auth-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Express.js API deployed as AWS Lambda function with DynamoDB",
+  "main": "dist/lambda.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.682.0",
+    "@aws-sdk/lib-dynamodb": "^3.682.0",
+    "@clerk/backend": "^1.15.3",
+    "aws-serverless-express": "^3.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.0.0",
+    "morgan": "^1.10.0",
+    "serverless-http": "^3.2.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/aws-serverless-express": "^3.3.9",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9",
+    "@types/node": "^22.8.6",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}

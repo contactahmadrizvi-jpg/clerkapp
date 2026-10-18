@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Clerk Auth App — Lambda API + DynamoDB
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 29
+    MemorySize: 512
+    Environment:
+      Variables:
+        NODE_ENV:                   production
+        DYNAMODB_TABLE:             clerk-auth-users
+        SHOPIFY_TOKENS_TABLE:       shopify-tokens
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+        CLERK_SECRET_KEY:           !Ref ClerkSecretKey
+        FRONTEND_URL:               !Ref FrontendUrl
+        SHOPIFY_API_KEY:            !Ref ShopifyApiKey
+        SHOPIFY_API_SECRET:         !Ref ShopifyApiSecret
+        SHOPIFY_REDIRECT_URI:       !Ref ShopifyRedirectUri
+        SHOPIFY_STORE_DOMAIN:       !Ref ShopifyStoreDomain
+        SHOPIFY_ADMIN_ACCESS_TOKEN: !Ref ShopifyAdminToken
+
+Parameters:
+  ClerkSecretKey:
+    Type:        String
+    NoEcho:      true
+    Description: "Clerk secret key (sk_test_... or sk_live_...)"
+  FrontendUrl:
+    Type:        String
+    Description: "Amplify frontend URL e.g. https://main.abc.amplifyapp.com"
+  ShopifyApiKey:
+    Type:        String
+    Default:     ""
+    Description: "Shopify Partners app Client ID"
+  ShopifyApiSecret:
+    Type:        String
+    NoEcho:      true
+    Default:     ""
+    Description: "Shopify Partners app Client secret"
+  ShopifyRedirectUri:
+    Type:        String
+    Description: "Full callback URL e.g. https://<api-id>.execute-api.eu-north-1.amazonaws.com/production/api/shopify/callback"
+  ShopifyStoreDomain:
+    Type:        String
+    Default:     ""
+    Description: "Your own store domain for direct access"
+  ShopifyAdminToken:
+    Type:        String
+    NoEcho:      true
+    Default:     ""
+    Description: "Admin API access token for your own store (optional)"
+
+Resources:
+
+  # ── Shopify Tokens Table ────────────────────────────────────────────────────
+  ShopifyTokensTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: shopify-tokens
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+
+  # ── Users Table ─────────────────────────────────────────────────────────────
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: clerk-auth-users
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: userId
+          AttributeType: S
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: userId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: email-index
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+
+  # ── Lambda Function ─────────────────────────────────────────────────────────
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: clerk-auth-api
+      CodeUri: ../backend/dist/
+      Handler: lambda.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ShopifyTokensTable
+      Events:
+        ApiGatewayProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path:  /{proxy+}
+            Method: ANY
+
+  # ── HTTP API Gateway ────────────────────────────────────────────────────────
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: production
+      CorsConfiguration:
+        AllowOrigins:
+          - !Ref FrontendUrl
+          - "https://*.amplifyapp.com"
+        AllowMethods: [GET, POST, PATCH, DELETE, OPTIONS]
+        AllowHeaders: [Content-Type, Authorization]
+        AllowCredentials: true
+
+Outputs:
+  ApiEndpoint:
+    Description: "API Gateway endpoint — paste this into Amplify env vars as NEXT_PUBLIC_API_URL"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/production"
+  ShopifyCallbackUrl:
+    Description: "Paste this into Shopify Partners as Allowed redirection URL"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/production/api/shopify/callback"

@@ -1,0 +1,14 @@
+{
+  "TableName": "shopify-tokens",
+  "BillingMode": "PAY_PER_REQUEST",
+  "AttributeDefinitions": [
+    { "AttributeName": "userId", "AttributeType": "S" }
+  ],
+  "KeySchema": [
+    { "AttributeName": "userId", "KeyType": "HASH" }
+  ],
+  "SSESpecification": { "Enabled": true },
+  "Tags": [
+    { "Key": "Project", "Value": "clerk-auth-app" }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "TableName": "clerk-auth-users",
+  "BillingMode": "PAY_PER_REQUEST",
+  "AttributeDefinitions": [
+    { "AttributeName": "userId", "AttributeType": "S" },
+    { "AttributeName": "email",  "AttributeType": "S" }
+  ],
+  "KeySchema": [
+    { "AttributeName": "userId", "KeyType": "HASH" }
+  ],
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "email-index",
+      "KeySchema": [
+        { "AttributeName": "email", "KeyType": "HASH" }
+      ],
+      "Projection": { "ProjectionType": "ALL" }
+    }
+  ],
+  "PointInTimeRecoverySpecification": {
+    "PointInTimeRecoveryEnabled": true
+  },
+  "SSESpecification": {
+    "Enabled": true
+  },
+  "Tags": [
+    { "Key": "Project",     "Value": "clerk-auth-app" },
+    { "Key": "Environment", "Value": "production" }
+  ]
+}

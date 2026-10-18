@@ -1,0 +1,68 @@
+/* Google Fonts are now loaded via next/font in layout.tsx — no @import needed */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    @apply antialiased scroll-smooth;
+  }
+
+  body {
+    @apply bg-white text-gray-900 font-sans;
+  }
+}
+
+@layer components {
+  /* ── Auth card shell ── */
+  .auth-card {
+    @apply bg-white rounded-2xl shadow-card border border-gray-100 p-8 w-full max-w-md mx-auto;
+  }
+
+  /* ── Primary button ── */
+  .btn-primary {
+    @apply w-full flex items-center justify-center gap-2 rounded-xl bg-brand-600 text-white font-medium
+           px-4 py-3 text-sm transition-all duration-200
+           hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* ── Ghost / outline button ── */
+  .btn-ghost {
+    @apply w-full flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white text-gray-700 font-medium
+           px-4 py-3 text-sm transition-all duration-200
+           hover:bg-gray-50 hover:border-gray-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500;
+  }
+
+  /* ── Form input ── */
+  .form-input {
+    @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-gray-400
+           transition-all duration-150 outline-none
+           focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+  }
+
+  /* ── Form field error ── */
+  .form-error {
+    @apply text-xs text-red-500 mt-1 flex items-center gap-1;
+  }
+
+  /* ── Divider with label ── */
+  .divider {
+    @apply flex items-center gap-3 text-xs text-gray-400;
+  }
+  .divider::before,
+  .divider::after {
+    content: "";
+    @apply flex-1 h-px bg-gray-100;
+  }
+
+  /* ── Badge ── */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}
